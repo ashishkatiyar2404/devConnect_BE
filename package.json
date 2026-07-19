@@ -1,0 +1,21 @@
+{
+  "name": "devtinder_be",
+  "version": "1.0.0",
+  "description": "It is platform where developers can make friend and than meet and than make projects together.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [
+    "javaScript",
+    "nodejs",
+    "nodemon",
+    "mondoDB"
+  ],
+  "author": "Ashish Katiyar",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
