@@ -4,6 +4,20 @@ const { adminAuthorized, userAuthorized } = require("./middleware/auth");
 
 const app = express();
 
+app.get("/getUserData", (req, res) => {
+  console.log("first");
+  throw new Error("new error");
+  console.log("first11");
+  res.send("User Data Sent");
+});
+
+// error-handling middleware
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.status(500).send("Something went Wrong");
+  }
+});
+
 app.use("/admin", adminAuthorized);
 
 app.get("/admin/allData", (req, res) => {
