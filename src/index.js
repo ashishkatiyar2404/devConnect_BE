@@ -9,10 +9,15 @@ app.use(express.json());
 // PATCH API -  to update any user data
 app.patch("/user", async (req, res) => {
   try {
-    const user = await UserModel.findByIdAndUpdate(req.body.id, req.body);
+    const user = await UserModel.findByIdAndUpdate(req.body.id, req.body, {
+      returnDocument: "after",
+      runValidators: true,
+    });
     res.send("User Finally Update");
   } catch (err) {
-    res.status(400).send("Something went Wrong while fetching user");
+    res
+      .status(400)
+      .send("Something went Wrong while fetching user " + err.message);
   }
 });
 
@@ -77,7 +82,9 @@ app.post("/signup", async (req, res) => {
   } catch (err) {
     res
       .status(400)
-      .send("Something went Wrong while adding the user to database");
+      .send(
+        "Something went Wrong while adding the user to database " + err.message,
+      );
   }
 });
 
