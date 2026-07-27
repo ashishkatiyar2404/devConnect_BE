@@ -7,12 +7,29 @@ const app = express();
 app.use(express.json());
 
 // PATCH API -  to update any user data
-app.patch("/user", async (req, res) => {
+app.patch("/user/:userId", async (req, res) => {
   try {
-    const user = await UserModel.findByIdAndUpdate(req.body.id, req.body, {
-      returnDocument: "after",
-      runValidators: true,
-    });
+    // Get all field names defined in your schema, excluding system fields like _id, __v, createdAt, updatedAt
+    const allowedUpdates = Object.keys(UserModel.schema.paths).filter(
+      (field) => !["emailId", "_id"].includes(field),
+    );
+
+    const isValidOperation = Object.keys(req.body).every((field) =>
+      allowedUpdates.includes(field),
+    );
+
+    if (!isValidOperation) {
+      res.status(400).send("Invalid field in Update request");
+    }
+
+    const user = await UserModel.findByIdAndUpdate(
+      req.params.userId,
+      req.body,
+      {
+        returnDocument: "after",
+        runValidators: true,
+      },
+    );
     res.send("User Finally Update");
   } catch (err) {
     res

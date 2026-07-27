@@ -7,9 +7,13 @@ const userSchema = new mongoose.Schema(
       required: true,
       minLength: 4,
       maxLength: 50,
+      trim: true,
     },
     lastName: {
       type: String,
+      minLength: 4,
+      maxLength: 50,
+      trim: true,
     },
     age: {
       type: Number,
@@ -18,29 +22,37 @@ const userSchema = new mongoose.Schema(
     emailId: {
       type: String,
       unique: true,
-      required: true,
+      required: [true, "Email is Required"],
       lowercase: true,
       trim: true,
+      // immutable: true,
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        "Please enter a valid email address",
+      ],
     },
     gender: {
       type: String,
+      trim: true,
       // validate: (value) => {
       //   if (!["male", "female", "others"].includes(value)) {
       //     throw new Error("Gender can only be Male, female or others");
       //   }
       // },
       enum: {
-        values: ["male", "female"],
+        values: ["male", "female", "others"],
         message: "{VALUE} is not supported",
       },
     },
     password: {
       type: String,
       required: true,
+      minLength: [8, "Password must be atleast 8 char long"],
     },
     about: {
       type: String,
       default: "I am Frontend Developer",
+      minLength: [250, "About Section cannot exceed 250 Characters"],
     },
     photoUrl: {
       type: String,
@@ -50,6 +62,10 @@ const userSchema = new mongoose.Schema(
     skills: {
       type: [String],
       default: ["javaScript", "ReactJS", "NodeJS"],
+      validate: [
+        (value) => value.length <= 6,
+        "Skills should not be more than 6",
+      ],
     },
   },
   {
