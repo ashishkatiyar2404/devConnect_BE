@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
@@ -30,6 +31,10 @@ const userSchema = new mongoose.Schema(
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         "Please enter a valid email address",
       ],
+      validate: {
+        validator: (value) => validator.isEmail(value),
+        message: "Enter Valid Email",
+      },
     },
     gender: {
       type: String,
@@ -48,16 +53,25 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minLength: [8, "Password must be atleast 8 char long"],
+      validate: {
+        validator: (value) => validator.isStrongPassword(value),
+        message:
+          "Password is not strong enough! Include uppercase, lowercase, numbers, and symbols.",
+      },
     },
     about: {
       type: String,
       default: "I am Frontend Developer",
-      minLength: [250, "About Section cannot exceed 250 Characters"],
+      maxLength: [250, "About Section cannot exceed 250 Characters"],
     },
     photoUrl: {
       type: String,
       default:
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZ0TldrpIvLvIaWj8KquIYIHf8axewRbGbVmDrhZNdNA&s=10",
+      validate: {
+        validator: (value) => validator.isURL(value),
+        message: "Photo URl is not valid",
+      },
     },
     skills: {
       type: [String],
