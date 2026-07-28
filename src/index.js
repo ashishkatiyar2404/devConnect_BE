@@ -1,8 +1,11 @@
 const express = require("express");
 const connectDB = require("./config/database");
+const { validateData } = require("./utils/validation");
+const bcrypt = require("bcrypt");
 const UserModel = require("./models/user");
 
 const app = express();
+const saltRounds = 10;
 
 app.use(express.json());
 
@@ -19,7 +22,7 @@ app.patch("/user/:userId", async (req, res) => {
     );
 
     if (!isValidOperation) {
-      res.status(400).send("Invalid field in Update request");
+      res.status(400).send("Error - " + err.message);
     }
 
     const user = await UserModel.findByIdAndUpdate(
@@ -49,7 +52,7 @@ app.get("/user", async (req, res) => {
       res.send(user);
     }
   } catch (err) {
-    res.status(400).send("Something went Wrong while fetching user");
+    res.status(400).send("Error - " + err.message);
   }
 });
 
@@ -59,7 +62,7 @@ app.delete("/user", async (req, res) => {
     const deletedUser = await UserModel.findByIdAndDelete(req.body.userId);
     res.send("User deleted successfully");
   } catch (err) {
-    res.status(400).send("Something went Wrong while fetching user");
+    res.status(400).send("Error - " + err.message);
   }
 });
 
@@ -86,22 +89,56 @@ app.get("/user/:id", async (req, res) => {
       res.status(200).send(user);
     }
   } catch (err) {
-    res.status(400).send({ error: "Invalid User ID format or Database Error" });
+    res.status(400).send("Error - " + err.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { emailId, password } = req.body;
+  try {
+    //validate email first
+    // check if the emailId is present in DataBase or not
+    const user = await UserModel.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid Credentials");
+    }
+
+    //compare the current user password with DB user password
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch) {
+      throw new Error("Invalid Credentials");
+    } else {
+      res.send("Login Successfully");
+    }
+  } catch (err) {
+    res.status(400).send("Error - " + err.message);
   }
 });
 
 app.post("/signup", async (req, res) => {
-  // creating a new instance of the user model
-  const user = new UserModel(req.body);
+  const { firstName, lastName, emailId, password, age, gender, photoUrl } =
+    req.body;
   try {
+    // validation of Data(req.body)
+    validateData(req);
+
+    // bcrypt the password
+    const hashPassword = await bcrypt.hash(password, saltRounds);
+
+    // creating a new instance of the user model
+    const user = new UserModel({
+      firstName,
+      lastName,
+      emailId,
+      age,
+      gender,
+      photoUrl,
+      password: hashPassword,
+    });
     await user.save();
     res.send("User Data Added Successfully");
   } catch (err) {
-    res
-      .status(400)
-      .send(
-        "Something went Wrong while adding the user to database " + err.message,
-      );
+    res.status(400).send("Error - " + err.message);
   }
 });
 
