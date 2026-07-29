@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -53,11 +55,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minLength: [8, "Password must be atleast 8 char long"],
-      validate: {
-        validator: (value) => validator.isStrongPassword(value),
-        message:
-          "Password is not strong enough! Include uppercase, lowercase, numbers, and symbols.",
-      },
+      /**In your signup route, you hash the password before saving:
+       * Because user.save() triggers your Mongoose schema validations, your schema will run validator.isStrongPassword on the hashPassword string (e.g. $2b$10$e83H...).
+       * A hashed password usually fails isStrongPassword()!
+       *
+       */
+      // validate: {
+      //   validator: (value) => validator.isStrongPassword(value),
+      //   message:
+      //     "Password is not strong enough! Include uppercase, lowercase, numbers, and symbols.",
+      // },
     },
     about: {
       type: String,
@@ -87,6 +94,31 @@ const userSchema = new mongoose.Schema(
   },
 );
 
+userSchema.methods.getJWT = async function () {
+  // const user = this;
+  const token = await jwt.sign({ _id: this._id }, "Dev@1234", {
+    expiresIn: "1d",
+  });
+
+  return token;
+};
+
+userSchema.methods.comparePassword = async function (passwordByUserInput) {
+  const hashPassword = this.password;
+  const isPasswordMatch = await bcrypt.compare(
+    passwordByUserInput,
+    hashPassword,
+  );
+  return isPasswordMatch;
+};
+
 const UserModel = mongoose.model("User", userSchema);
 
 module.exports = UserModel;
+
+/**
+ *   NOTE
+ *
+ * In Mongoose, anything added to userSchema.methods attaches ONLY to individual document instances (like the user variable returned by UserModel.findOne(...)).
+ *
+ */

@@ -3,99 +3,32 @@ const connectDB = require("./config/database");
 const { validateData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const UserModel = require("./models/user");
+const cookie = require("cookie-parser");
+const { UserAuth } = require("./middleware/auth");
+const jwtToken = require("jsonwebtoken");
 
 const app = express();
 const saltRounds = 10;
 
 app.use(express.json());
+app.use(cookie());
 
-// PATCH API -  to update any user data
-app.patch("/user/:userId", async (req, res) => {
-  try {
-    // Get all field names defined in your schema, excluding system fields like _id, __v, createdAt, updatedAt
-    const allowedUpdates = Object.keys(UserModel.schema.paths).filter(
-      (field) => !["emailId", "_id"].includes(field),
-    );
-
-    const isValidOperation = Object.keys(req.body).every((field) =>
-      allowedUpdates.includes(field),
-    );
-
-    if (!isValidOperation) {
-      res.status(400).send("Error - " + err.message);
-    }
-
-    const user = await UserModel.findByIdAndUpdate(
-      req.params.userId,
-      req.body,
-      {
-        returnDocument: "after",
-        runValidators: true,
-      },
-    );
-    res.send("User Finally Update");
-  } catch (err) {
-    res
-      .status(400)
-      .send("Something went Wrong while fetching user " + err.message);
-  }
+app.post("/sendConnectionRequest", UserAuth, (req, res) => {
+  res.send(req.user.firstName + " is send you a request");
 });
 
-// get user -- findOne
-app.get("/user", async (req, res) => {
+app.get("/profile", UserAuth, (req, res) => {
   try {
-    // findOne()/findOne({}) - will give me first user
-    const user = await UserModel.findOne({ emailId: req.body.emailId });
-    if (user.length === 0) {
-      res.status(400).send("No User Found");
-    } else {
-      res.send(user);
-    }
-  } catch (err) {
-    res.status(400).send("Error - " + err.message);
-  }
-});
-
-// delete API
-app.delete("/user", async (req, res) => {
-  try {
-    const deletedUser = await UserModel.findByIdAndDelete(req.body.userId);
-    res.send("User deleted successfully");
-  } catch (err) {
-    res.status(400).send("Error - " + err.message);
-  }
-});
-
-// GET /feed API - get all the users from the database
-app.get("/feed", async (req, res) => {
-  try {
-    const user = await UserModel.find({});
-    if (!user) {
-      res.status(400).send("No User Found");
-    } else {
-      res.send(user);
-    }
-  } catch (err) {
-    res.status(400).send("Something went Wrong while fetching user");
-  }
-});
-
-app.get("/user/:id", async (req, res) => {
-  try {
-    const user = await UserModel.find(req.params.id);
-    if (!user) {
-      return res.status(404).send({ error: "User not found" });
-    } else {
-      res.status(200).send(user);
-    }
+    const { user } = req;
+    res.send(user);
   } catch (err) {
     res.status(400).send("Error - " + err.message);
   }
 });
 
 app.post("/login", async (req, res) => {
-  const { emailId, password } = req.body;
   try {
+    const { emailId, password } = req.body;
     //validate email first
     // check if the emailId is present in DataBase or not
     const user = await UserModel.findOne({ emailId: emailId });
@@ -104,10 +37,17 @@ app.post("/login", async (req, res) => {
     }
 
     //compare the current user password with DB user password
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    const isPasswordMatch = await user.comparePassword(password);
     if (!isPasswordMatch) {
       throw new Error("Invalid Credentials");
     } else {
+      // create a JWT token
+      const token = await user.getJWT();
+
+      // Add the token to cookie and send the response to user
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 8 * 3600000), // cookie will be removed after 8 hours
+      });
       res.send("Login Successfully");
     }
   } catch (err) {
