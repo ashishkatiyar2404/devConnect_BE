@@ -45,7 +45,7 @@ requestRouter.post(
         ],
       });
       if (existingConnection) {
-        return req.status(400).json({
+        return res.status(400).json({
           success: false,
           message: "Connection request already Exist",
         });
@@ -68,6 +68,75 @@ requestRouter.post(
       return res.status(400).json({
         success: false,
         message: err.message,
+      });
+    }
+  },
+);
+
+requestRouter.post(
+  "/request/review/:status/:requestId",
+  UserAuth,
+  async (req, res) => {
+    try {
+      const loggedInUser = req.user;
+      const { status, requestId } = req.params;
+      console.log(status, requestId, loggedInUser);
+      //validate the input status
+      const acceptedStatus = ["accepted", "rejected"];
+      if (!acceptedStatus.includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid status: '${status}'. Allowed values are 'accepted' or 'rejected'.`,
+        });
+      }
+
+      // validate the request ID , (object type or not)
+      if (!mongoose.Types.ObjectId.isValid(requestId)) {
+        return res.status(400).json({
+          message: "Invalid request ID",
+          success: false,
+        });
+      }
+
+      // check perticular connection is found in DB or not
+      // const connectionRequest = await ConnectionRequestModel.findOne({
+      //   _id: requestId,
+      //   status: "interested",
+      //   toUserId: loggedInUser._id,
+      // });
+
+      // NOTE: If a user double-clicks "Accept", two near-instant requests hit your server. If both pass the findOne query at the same time, both will write to the database.
+
+      // Atomic State Transition (Prevents Race Conditions)
+      const connectionRequest = await ConnectionRequestModel.findOneAndUpdate(
+        {
+          _id: requestId,
+          status: "interested",
+          toUserId: loggedInUser._id,
+        },
+        {
+          status: status,
+        },
+        { returnDocument: "after", runValidators: true },
+      );
+      if (!connectionRequest) {
+        return res.status(404).json({
+          success: false,
+          message: "Connection request not found or already reviewed",
+        });
+      }
+      // connectionRequest.status = status;
+      // const data = await connectionRequest.save();
+
+      return res.status(200).json({
+        message: `Connection request ${status} successfully`,
+        success: true,
+        data: connectionRequest,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error: " + err.message,
       });
     }
   },

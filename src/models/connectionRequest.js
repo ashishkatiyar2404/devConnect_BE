@@ -24,13 +24,12 @@ const connectionRequestSchema = new mongoose.Schema(
 
 connectionRequestSchema.index({ firstName: 1, lastName: 1 });
 
-connectionRequestSchema.pre("save", function (next) {
+connectionRequestSchema.pre("save", function () {
   //   const connectionRequest = this;
 
   if (this.fromUserId.equals(this.toUserId)) {
     throw new Error("Cannot send connection request to yourself");
   }
-  next();
 });
 
 // Model Name first Char should be capital letter
