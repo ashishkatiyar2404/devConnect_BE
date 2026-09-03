@@ -4,6 +4,7 @@ const requestRouter = express.Router();
 const { UserAuth } = require("../middleware/auth");
 const ConnectionRequestModel = require("../models/connectionRequest");
 const UserModel = require("../models/user");
+const mongoose = require("mongoose");
 
 requestRouter.post(
   "/request/send/:status/:toUserId",
@@ -61,7 +62,8 @@ requestRouter.post(
       const data = await connectionRequest.save();
       return res.status(200).json({
         success: true,
-        message: "Connection Request send successfully",
+        message:
+          req.user.firstName + " is " + status + " in " + toUser.firstName,
         data,
       });
     } catch (err) {
