@@ -26,9 +26,23 @@ authRouter.post("/login", async (req, res) => {
 
       // Add the token to cookie and send the response to user
       res.cookie("token", token, {
+        httpOnly: true, // <-- CRUCIAL: Blocks client-side JS (document.cookie) from reading this
         expires: new Date(Date.now() + 8 * 3600000), // cookie will be removed after 8 hours
       });
-      res.send("Login Successfully");
+      res.status(200).json({
+        success: true,
+        message: "Login successful",
+        data: {
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          emailId: user.emailId,
+          photoUrl: user.photoUrl,
+          age: user.age,
+          gender: user.gender,
+          about: user.about,
+        },
+      });
     }
   } catch (err) {
     res.status(400).json({
@@ -43,9 +57,13 @@ authRouter.post("/logout", async (req, res) => {
   try {
     res.cookie("token", null, {
       expires: new Date(Date.now()),
+      httpOnly: true,
     });
 
-    res.send("User Logged Out");
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
   } catch (err) {
     res.status(400).json({
       success: false,
@@ -77,9 +95,9 @@ authRouter.post("/signup", async (req, res) => {
       password: hashPassword,
     });
     await user.save();
-    res.send("User Data Added Successfully");
+    res.status(200).send("User Data Added Successfully");
   } catch (err) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       message: err.message,
     });

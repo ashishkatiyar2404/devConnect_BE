@@ -11,10 +11,12 @@ const { UserAuth } = require("../middleware/auth");
 
 profileRouter.get("/profile/view", UserAuth, (req, res) => {
   try {
-    const { user } = req;
-    res.send(user);
+    res.status(200).json({
+      success: true,
+      data: req.user,
+    });
   } catch (err) {
-    res.status(400).json({
+    res.status(500).json({
       success: false,
       message: err.message,
     });
@@ -25,11 +27,12 @@ profileRouter.patch("/profile/edit", UserAuth, async (req, res) => {
   // TODO: can also add firstName, lastName for edit
   try {
     const allowedFieldForUpdate = [
-      "skills",
       "about",
       "gender",
       "photoUrl",
       "age",
+      "firstName",
+      "lastName",
     ];
 
     const isUpdateAllowed = Object.keys(req.body).every((field) =>

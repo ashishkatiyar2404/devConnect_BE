@@ -82,7 +82,7 @@ requestRouter.post(
     try {
       const loggedInUser = req.user;
       const { status, requestId } = req.params;
-      console.log(status, requestId, loggedInUser);
+
       //validate the input status
       const acceptedStatus = ["accepted", "rejected"];
       if (!acceptedStatus.includes(status)) {

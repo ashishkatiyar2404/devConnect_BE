@@ -5,19 +5,19 @@ const UserAuth = async (req, res, next) => {
   try {
     const { token } = req.cookies;
     if (!token) {
-      throw new Error("Token is Invalid");
+      return res.status(401).json({ message: "Please Login!" });
     }
 
     const { _id } = await jwt.verify(token, "Dev@1234");
     const user = await UserModel.findById(_id);
     if (!user) {
-      throw new Error("User is not Found");
+      return res.status(401).json({ message: "User not found" });
     }
 
     req.user = user;
     next();
   } catch (err) {
-    res.status(400).send("Error - " + err.message);
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 
