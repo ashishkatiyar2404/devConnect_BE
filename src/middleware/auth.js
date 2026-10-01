@@ -8,7 +8,7 @@ const UserAuth = async (req, res, next) => {
       return res.status(401).json({ message: "Please Login!" });
     }
 
-    const { _id } = await jwt.verify(token, "Dev@1234");
+    const { _id } = await jwt.verify(token, process.env.JWT_TOKEN_SECRET_KEY);
     const user = await UserModel.findById(_id);
     if (!user) {
       return res.status(401).json({ message: "User not found" });

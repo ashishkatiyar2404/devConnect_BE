@@ -6,6 +6,8 @@ const ConnectionRequestModel = require("../models/connectionRequest");
 const UserModel = require("../models/user");
 const mongoose = require("mongoose");
 
+const sendEmail = require("./../utils/sendEmail");
+
 requestRouter.post(
   "/request/send/:status/:toUserId",
   UserAuth,
@@ -60,6 +62,9 @@ requestRouter.post(
       });
 
       const data = await connectionRequest.save();
+
+      const emailRes = await sendEmail.run();
+
       return res.status(200).json({
         success: true,
         message:
