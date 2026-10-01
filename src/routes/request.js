@@ -62,8 +62,17 @@ requestRouter.post(
       });
 
       const data = await connectionRequest.save();
+      const emailRes = await sendEmail.run(
+        "You have a new connection request on DevConnect",
+        `Hi ${toUser.firstName},
 
-      const emailRes = await sendEmail.run();
+         You have received a new connection request from ${req.user.firstName} on DevConnect.
+
+         Please log in to your DevConnect account to review the request and accept or reject it.
+
+         Thank you,
+         DevConnect Team`,
+      );
 
       return res.status(200).json({
         success: true,
