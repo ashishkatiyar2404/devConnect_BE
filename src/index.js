@@ -3,11 +3,14 @@ const express = require("express");
 const connectDB = require("./config/database");
 const cookie = require("cookie-parser");
 const cors = require("cors");
+const { createServer } = require("http");
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
+const chatRouter = require("./routes/chat");
+const initializeSocket = require("./utils/socket");
 require("./utils/cronjob");
 
 const app = express();
@@ -24,11 +27,15 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+app.use("/", chatRouter);
+
+const httpServer = createServer(app);
+initializeSocket(httpServer);
 
 connectDB()
   .then(() => {
     console.log("Connected to DataBase");
-    app.listen(process.env.PORT, () => {
+    httpServer.listen(process.env.PORT, () => {
       console.log("Server started to listing on 8000");
     });
   })
