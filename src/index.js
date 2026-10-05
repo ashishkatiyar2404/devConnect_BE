@@ -10,8 +10,8 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const chatRouter = require("./routes/chat");
-const initializeSocket = require("./utils/socket");
-require("./utils/cronjob");
+const initializeSocket = require("./services/socket");
+require("./jobs/cronjob");
 
 const app = express();
 app.use(

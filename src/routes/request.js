@@ -6,7 +6,7 @@ const ConnectionRequestModel = require("../models/connectionRequest");
 const UserModel = require("../models/user");
 const mongoose = require("mongoose");
 
-const sendEmail = require("./../utils/sendEmail");
+const sendEmail = require("../services/sendEmail");
 
 requestRouter.post(
   "/request/send/:status/:toUserId",
