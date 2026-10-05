@@ -1,5 +1,6 @@
 const socketIO = require("socket.io");
 const crypto = require("crypto");
+const chatModel = require("../models/Chat");
 
 const getSecretRoomId = (userId, targetUserId) => {
   return crypto
@@ -20,22 +21,52 @@ const initializeSocket = (httpServer) => {
   // "socket" in param is connected client
   io.on("connection", (socket) => {
     console.log("A user connected:", socket.id);
+
     // .on()->listen for an event, when FE emit event(socket.emit) thn BE will listen
     socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
-      const uniqueRooomId = [userId, targetUserId].sort().join("_");
+      const uniqueRooomId = getSecretRoomId(userId, targetUserId);
       socket.join(uniqueRooomId);
       console.log(firstName + "wants to join chat-- " + uniqueRooomId);
     });
 
-    socket.on("sendMessage", ({ firstName, userId, targetUserId, text }) => {
-      const uniqueRooomId = getSecretRoomId(userId, targetUserId);
+    socket.on(
+      "sendMessage",
+      async ({ firstName, lastName, userId, targetUserId, text }) => {
+        // saving messages to the database
+        try {
+          const uniqueRooomId = getSecretRoomId(userId, targetUserId);
 
-      io.to(uniqueRooomId).emit("messageReceived", {
-        firstName,
-        text,
-        senderId: userId,
-      });
-    });
+          //TODO: Check if userId and targetUserId are friends
+
+          let chat = await chatModel.findOne({
+            participants: { $all: [userId, targetUserId] },
+          });
+
+          if (!chat) {
+            chat = new chatModel({
+              participants: [userId, targetUserId],
+              messages: [],
+            });
+          }
+
+          chat.messages.push({
+            senderId: userId,
+            text,
+          });
+
+          await chat.save();
+
+          io.to(uniqueRooomId).emit("messageReceived", {
+            firstName,
+            lastName,
+            text,
+            senderId: userId,
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    );
 
     socket.on("disconnect", () => {
       console.log("User disconnected");

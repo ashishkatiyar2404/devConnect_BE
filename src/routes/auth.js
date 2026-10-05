@@ -33,7 +33,7 @@ authRouter.post("/login", async (req, res) => {
         success: true,
         message: "Login successful",
         data: {
-          id: user._id,
+          _id: user._id,
           firstName: user.firstName,
           lastName: user.lastName,
           emailId: user.emailId,
