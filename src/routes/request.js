@@ -29,9 +29,20 @@ requestRouter.post(
         });
       }
 
+      // Cannot send request to oneself
+      if (fromUserId.toString() === toUserId.toString()) {
+        return res.status(400).json({
+          success: false,
+          message: "Cannot send connection request to yourself",
+        });
+      }
+
       const toUser = await UserModel.findById(toUserId);
       if (!toUser) {
-        throw new Error("Sending Request to Non exist user");
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
       }
 
       // checking if connection is already exist or not
@@ -50,7 +61,7 @@ requestRouter.post(
       if (existingConnection) {
         return res.status(400).json({
           success: false,
-          message: "Connection request already Exist",
+          message: "Connection request already exists",
         });
       }
 
@@ -76,8 +87,7 @@ requestRouter.post(
 
       return res.status(200).json({
         success: true,
-        message:
-          req.user.firstName + " is " + status + " in " + toUser.firstName,
+        message: `${req.user.firstName} is ${status} in ${toUser.firstName}`,
         data,
       });
     } catch (err) {
@@ -109,19 +119,10 @@ requestRouter.post(
       // validate the request ID , (object type or not)
       if (!mongoose.Types.ObjectId.isValid(requestId)) {
         return res.status(400).json({
-          message: "Invalid request ID",
           success: false,
+          message: "Invalid request ID",
         });
       }
-
-      // check perticular connection is found in DB or not
-      // const connectionRequest = await ConnectionRequestModel.findOne({
-      //   _id: requestId,
-      //   status: "interested",
-      //   toUserId: loggedInUser._id,
-      // });
-
-      // NOTE: If a user double-clicks "Accept", two near-instant requests hit your server. If both pass the findOne query at the same time, both will write to the database.
 
       // Atomic State Transition (Prevents Race Conditions)
       const connectionRequest = await ConnectionRequestModel.findOneAndUpdate(
@@ -141,18 +142,16 @@ requestRouter.post(
           message: "Connection request not found or already reviewed",
         });
       }
-      // connectionRequest.status = status;
-      // const data = await connectionRequest.save();
 
       return res.status(200).json({
-        message: `Connection request ${status} successfully`,
         success: true,
+        message: `Connection request ${status} successfully`,
         data: connectionRequest,
       });
     } catch (err) {
-      return res.status(500).json({
+      return res.status(400).json({
         success: false,
-        message: "Internal Server Error: " + err.message,
+        message: err.message,
       });
     }
   },

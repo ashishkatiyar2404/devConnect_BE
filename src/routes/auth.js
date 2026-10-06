@@ -74,17 +74,26 @@ authRouter.post("/logout", async (req, res) => {
 
 /** SIGNUP */
 authRouter.post("/signup", async (req, res) => {
-  const { firstName, lastName, emailId, password, age, gender, photoUrl } =
-    req.body;
-
   try {
     // validation of Data(req.body)
     validateData(req);
 
+    const {
+      firstName,
+      lastName,
+      emailId,
+      password,
+      age,
+      gender,
+      photoUrl,
+      about,
+      skills,
+    } = req.body;
+
     // bcrypt the password
     const hashPassword = await bcrypt.hash(password, 10);
 
-    // creating a new instance of the user model
+    // creating a new instance of the user model with whitelisted/sanitized fields
     const user = new UserModel({
       firstName,
       lastName,
@@ -92,10 +101,17 @@ authRouter.post("/signup", async (req, res) => {
       age,
       gender,
       photoUrl,
+      about,
+      skills,
       password: hashPassword,
     });
+
     await user.save();
-    res.status(200).send("User Data Added Successfully");
+
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+    });
   } catch (err) {
     return res.status(400).json({
       success: false,

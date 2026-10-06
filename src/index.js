@@ -29,6 +29,23 @@ app.use("/", requestRouter);
 app.use("/", userRouter);
 app.use("/", chatRouter);
 
+// 404 Handler for undefined routes
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Cannot ${req.method} ${req.originalUrl} - Route not found`,
+  });
+});
+
+// Global error-handling middleware
+app.use((err, req, res, next) => {
+  console.error("Unhandled Error:", err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
+
 const httpServer = createServer(app);
 initializeSocket(httpServer);
 
