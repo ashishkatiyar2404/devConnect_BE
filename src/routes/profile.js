@@ -33,6 +33,7 @@ profileRouter.patch("/profile/edit", UserAuth, async (req, res) => {
       "age",
       "firstName",
       "lastName",
+      "skills",
     ];
 
     const isUpdateAllowed = Object.keys(req.body).every((field) =>
@@ -65,7 +66,7 @@ profileRouter.patch("/profile/edit", UserAuth, async (req, res) => {
 profileRouter.patch("/profile/password", UserAuth, async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmNewPassword } = req.body;
-    validatePassword(newPassword, confirmNewPassword);
+    validatePassword(currentPassword, newPassword, confirmNewPassword);
 
     const loggedUser = req.user;
     const isSameAsOld = await loggedUser.comparePassword(currentPassword);

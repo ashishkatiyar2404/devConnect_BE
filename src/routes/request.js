@@ -73,19 +73,25 @@ requestRouter.post(
       });
 
       const data = await connectionRequest.save();
-      const emailRes = await sendEmail.run(
-        "You have a new connection request on DevConnect",
-        `Hi ${toUser.firstName},
 
-         You have received a new connection request from ${req.user.firstName} on DevConnect.
+      try {
+        await sendEmail.run(
+          toUser.emailId,
+          "You have a new connection request on DevConnect",
+          `Hi ${toUser.firstName},
 
-         Please log in to your DevConnect account to review the request and accept or reject it.
+           You have received a new connection request from ${req.user.firstName} on DevConnect.
 
-         Thank you,
-         DevConnect Team`,
-      );
+           Please log in to your DevConnect account to review the request and accept or reject it.
 
-      return res.status(200).json({
+           Thank you,
+           DevConnect Team`,
+        );
+      } catch (emailErr) {
+        console.error("Failed to send notification email:", emailErr.message);
+      }
+
+      return res.status(201).json({
         success: true,
         message: `${req.user.firstName} is ${status} in ${toUser.firstName}`,
         data,

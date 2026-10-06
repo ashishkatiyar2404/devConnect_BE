@@ -27,10 +27,15 @@ userRouter.get("/user/request/received", UserAuth, async (req, res) => {
       .populate("fromUserId", USER_SAFE_DATA)
       .sort({ createdAt: -1 }); // incoming notifications should show the freshest requests first
 
+    // Filter out requests where sender account was deleted
+    const validRequests = connectionRequest.filter(
+      (request) => request.fromUserId !== null,
+    );
+
     return res.status(200).json({
       success: true,
       message: "Connection requests fetched successfully",
-      data: connectionRequest,
+      data: validRequests,
     });
   } catch (err) {
     return res.status(400).json({
@@ -80,9 +85,8 @@ userRouter.get("/user/connections", UserAuth, async (req, res) => {
 userRouter.get("/user/feed", UserAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
-    const page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || 10;
-    limit = limit > 50 ? 50 : limit;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    let limit = Math.max(1, Math.min(50, parseInt(req.query.limit) || 10));
 
     const skip = (page - 1) * limit;
     const connectionRequest = await ConnectionRequestModel.find({
@@ -93,8 +97,8 @@ userRouter.get("/user/feed", UserAuth, async (req, res) => {
 
     const hideUsersFromFeed = new Set();
     connectionRequest.forEach((req) => {
-      hideUsersFromFeed.add(req.fromUserId.toString());
-      hideUsersFromFeed.add(req.toUserId.toString());
+      if (req.fromUserId) hideUsersFromFeed.add(req.fromUserId.toString());
+      if (req.toUserId) hideUsersFromFeed.add(req.toUserId.toString());
     });
 
     const feedUsers = await UserModel.find({

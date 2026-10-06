@@ -8,7 +8,6 @@ cron.schedule("0 8 * * *", async () => {
   // Send emails to all people who got requests the previous day
   try {
     const yesterdayDate = subDays(new Date(), 1);
-    s;
 
     const yesterdayStartTime = startOfDay(yesterdayDate);
     const yesterdayEndTime = endOfDay(yesterdayDate);
@@ -22,12 +21,17 @@ cron.schedule("0 8 * * *", async () => {
     }).populate("fromUserId toUserId");
 
     const emailsList = [
-      ...new Set(pendingRequests.map((req) => req.toUserId.emailId)),
+      ...new Set(
+        pendingRequests
+          .map((req) => req.toUserId?.emailId)
+          .filter(Boolean),
+      ),
     ];
 
     for (const email of emailsList) {
       try {
         const response = await sendEmail.run(
+          email,
           "You have pending connection requests on DevConnect",
           "You have some connection requests waiting for your response on DevConnect. Please log in to your account to review the requests and choose whether to accept or reject them.",
         );

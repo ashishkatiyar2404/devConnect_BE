@@ -41,7 +41,7 @@ const validateUpdateFields = (bodyData) => {
     }
 
     const hasInvalidSkill = skills.some(
-      (skill) => typeof skills !== "string" || skill.trim() === "",
+      (skill) => typeof skill !== "string" || skill.trim() === "",
     );
 
     if (hasInvalidSkill) {
@@ -56,12 +56,12 @@ const validateUpdateFields = (bodyData) => {
   }
 };
 
-const validatePassword = (newPassword, confirmNewPassword) => {
+const validatePassword = (currentPassword, newPassword, confirmNewPassword) => {
   if (!currentPassword || !newPassword || !confirmNewPassword) {
     throw new Error("All password fields are required");
   }
-  if (!(newPassword === confirmNewPassword)) {
-    throw new Error("Password Doesn't match");
+  if (newPassword !== confirmNewPassword) {
+    throw new Error("Password doesn't match");
   }
   if (!validator.isStrongPassword(newPassword)) {
     throw new Error("Provide a Strong Password");

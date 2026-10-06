@@ -9,7 +9,9 @@ const UserModel = require("../models/user");
 authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
-    // validate email first
+    if (!emailId || !password) {
+      throw new Error("Email ID and password are required");
+    }
     // check if the emailId is present in DataBase or not
     const user = await UserModel.findOne({ emailId: emailId });
     if (!user) {
