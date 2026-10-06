@@ -28,9 +28,9 @@ userRouter.get("/user/request/received", UserAuth, async (req, res) => {
       .sort({ createdAt: -1 }); // incoming notifications should show the freshest requests first
 
     return res.status(200).json({
-      data: connectionRequest,
       success: true,
-      message: "Data fetched Successfully",
+      message: "Connection requests fetched successfully",
+      data: connectionRequest,
     });
   } catch (err) {
     return res.status(400).json({
@@ -66,8 +66,8 @@ userRouter.get("/user/connections", UserAuth, async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      message: "Connections fetched successfully",
       data: connectionsData,
-      message: "Data Fetched Successfully",
     });
   } catch (err) {
     return res.status(400).json({
@@ -113,13 +113,13 @@ userRouter.get("/user/feed", UserAuth, async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      message: "Feed fetched successfully",
       data: feedUsers,
-      message: "Feed fetch successfully",
     });
-  } catch (e) {
+  } catch (err) {
     return res.status(400).json({
       success: false,
-      message: e.message,
+      message: err.message,
     });
   }
 });

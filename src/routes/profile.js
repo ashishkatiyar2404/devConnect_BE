@@ -13,10 +13,11 @@ profileRouter.get("/profile/view", UserAuth, (req, res) => {
   try {
     res.status(200).json({
       success: true,
+      message: "Profile fetched successfully",
       data: req.user,
     });
   } catch (err) {
-    res.status(500).json({
+    res.status(400).json({
       success: false,
       message: err.message,
     });
@@ -24,7 +25,6 @@ profileRouter.get("/profile/view", UserAuth, (req, res) => {
 });
 
 profileRouter.patch("/profile/edit", UserAuth, async (req, res) => {
-  // TODO: can also add firstName, lastName for edit
   try {
     const allowedFieldForUpdate = [
       "about",
@@ -70,7 +70,7 @@ profileRouter.patch("/profile/password", UserAuth, async (req, res) => {
     const loggedUser = req.user;
     const isSameAsOld = await loggedUser.comparePassword(currentPassword);
     if (!isSameAsOld) {
-      throw new Error("Current Passowrd is wrong");
+      throw new Error("Current password is incorrect");
     }
 
     const newPasswordHash = await bcrypt.hash(newPassword, 10);
