@@ -44,16 +44,16 @@ This repository houses the **RESTful Backend API** and **Socket.IO Real-time Eng
 
 ## 🛠️ Tech Stack
 
-| Category | Technology |
-| :--- | :--- |
-| **Runtime Environment** | Node.js |
-| **Web Framework** | Express.js (v5) |
-| **Database & ODM** | MongoDB, Mongoose |
-| **Real-Time Communication** | Socket.IO |
+| Category                    | Technology                                           |
+| :-------------------------- | :--------------------------------------------------- |
+| **Runtime Environment**     | Node.js                                              |
+| **Web Framework**           | Express.js (v5)                                      |
+| **Database & ODM**          | MongoDB, Mongoose                                    |
+| **Real-Time Communication** | Socket.IO                                            |
 | **Authentication & Crypto** | JSON Web Tokens (`jsonwebtoken`), `bcrypt`, `crypto` |
-| **Cloud Services** | AWS SES (`@aws-sdk/client-ses`) |
-| **Job Scheduling** | `node-cron`, `date-fns` |
-| **Validation & Middleware** | `validator`, `cookie-parser`, `cors`, `dotenv` |
+| **Cloud Services**          | AWS SES (`@aws-sdk/client-ses`)                      |
+| **Job Scheduling**          | `node-cron`, `date-fns`                              |
+| **Validation & Middleware** | `validator`, `cookie-parser`, `cors`, `dotenv`       |
 
 ---
 
@@ -95,6 +95,7 @@ devTinder_BE/
 ## 🔌 API Reference
 
 All successful responses follow the unified envelope:
+
 ```json
 {
   "success": true,
@@ -104,6 +105,7 @@ All successful responses follow the unified envelope:
 ```
 
 All errors follow:
+
 ```json
 {
   "success": false,
@@ -112,33 +114,38 @@ All errors follow:
 ```
 
 ### 1. Authentication (`/`)
-| Method | Endpoint | Description | Status Code |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/signup` | Register a new user | `201 Created` |
-| `POST` | `/login` | Authenticate user & issue JWT cookie | `200 OK` |
-| `POST` | `/logout` | Invalidate session cookie | `200 OK` |
+
+| Method | Endpoint  | Description                          | Status Code   |
+| :----- | :-------- | :----------------------------------- | :------------ |
+| `POST` | `/signup` | Register a new user                  | `201 Created` |
+| `POST` | `/login`  | Authenticate user & issue JWT cookie | `200 OK`      |
+| `POST` | `/logout` | Invalidate session cookie            | `200 OK`      |
 
 ### 2. Profile Management (`/`)
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/profile/view` | Fetch current logged-in user details | Yes |
-| `PATCH` | `/profile/edit` | Update profile information | Yes |
-| `PATCH` | `/profile/password` | Change user password | Yes |
+
+| Method  | Endpoint            | Description                          | Auth Required |
+| :------ | :------------------ | :----------------------------------- | :------------ |
+| `GET`   | `/profile/view`     | Fetch current logged-in user details | Yes           |
+| `PATCH` | `/profile/edit`     | Update profile information           | Yes           |
+| `PATCH` | `/profile/password` | Change user password                 | Yes           |
 
 ### 3. Connection Requests (`/`)
-| Method | Endpoint | Description | Status Code |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/request/send/:status/:toUserId` | Send signal (`interested` or `ignored`) | `201 Created` |
-| `POST` | `/request/review/:status/:requestId`| Review incoming request (`accepted` or `rejected`)| `200 OK` |
+
+| Method | Endpoint                             | Description                                        | Status Code   |
+| :----- | :----------------------------------- | :------------------------------------------------- | :------------ |
+| `POST` | `/request/send/:status/:toUserId`    | Send signal (`interested` or `ignored`)            | `201 Created` |
+| `POST` | `/request/review/:status/:requestId` | Review incoming request (`accepted` or `rejected`) | `200 OK`      |
 
 ### 4. User Network & Feed (`/`)
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/user/request/received` | List incoming connection requests | Yes |
-| `GET` | `/user/connections` | List accepted connections | Yes |
-| `GET` | `/user/feed?page=1&limit=10`| Fetch personalized developer feed | Yes |
+
+| Method | Endpoint                     | Description                       | Auth Required |
+| :----- | :--------------------------- | :-------------------------------- | :------------ |
+| `GET`  | `/user/request/received`     | List incoming connection requests | Yes           |
+| `GET`  | `/user/connections`          | List accepted connections         | Yes           |
+| `GET`  | `/user/feed?page=1&limit=10` | Fetch personalized developer feed | Yes           |
 
 ### 5. Chat & WebSocket Events
+
 - **REST**:
   - `GET /chat/:targetUserId` — Fetch full chat history between two users.
 - **Socket.IO Events**:
@@ -172,6 +179,7 @@ AWS_SES_SECRET_KEY=your_aws_secret_key
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/) (v18 or higher recommended)
 - [MongoDB](https://www.mongodb.com/) (Local instance or MongoDB Atlas Cluster)
 - An active AWS account with SES access (optional, for email notifications)
@@ -179,12 +187,14 @@ AWS_SES_SECRET_KEY=your_aws_secret_key
 ### Installation
 
 1. **Clone the repository**:
+
    ```bash
-   git clone https://github.com/ashishkatiyar2404/devTinder_BE.git
+   git clone https://github.com/ashishkatiyar2404/devConnect_BE.git
    cd devTinder_BE
    ```
 
 2. **Install dependencies**:
+
    ```bash
    npm install
    ```
@@ -208,8 +218,10 @@ The server will start listening at `http://localhost:8000`.
 
 ## 👨‍💻 Author
 
-**Ashish Katiyar**  
+**Ashish Katiyar**
+
 - GitHub: [@ashishkatiyar2404](https://github.com/ashishkatiyar2404)
+- Linkedin: [Ashish Katiyar](https://www.linkedin.com/in/ashish-katiyar-42b194158/)
 
 ---
 
