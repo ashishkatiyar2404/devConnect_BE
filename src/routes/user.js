@@ -63,7 +63,8 @@ userRouter.get("/user/connections", UserAuth, async (req, res) => {
     const connectionsData = allConnections
       .map((connection) => {
         const isSender =
-          connection.fromUserId._id.toString() === loggedInUser._id.toString();
+          connection.fromUserId?._id?.toString() ===
+          loggedInUser._id.toString();
 
         return isSender ? connection.toUserId : connection.fromUserId;
       })
