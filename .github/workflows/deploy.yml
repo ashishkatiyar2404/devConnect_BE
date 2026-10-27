@@ -82,4 +82,7 @@ jobs:
           ssh -i ~/.ssh/id_ed25519 \
             -o StrictHostKeyChecking=yes \
             "$USER@$HOST" \
-            'cd /home/ubuntu/devConnect_BE_GithubActions && npm ci --omit=dev'
+            'export NVM_DIR="$HOME/.nvm" && \
+             . "$NVM_DIR/nvm.sh" && \
+             cd /home/ubuntu/devConnect_BE_GithubActions && \
+             npm ci --omit=dev'
