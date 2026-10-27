@@ -86,3 +86,18 @@ jobs:
              . "$NVM_DIR/nvm.sh" && \
              cd /home/ubuntu/devConnect_BE_GithubActions && \
              npm ci --omit=dev'
+
+      - name: Restart backend using PM2
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            -o StrictHostKeyChecking=yes \
+            "$USER@$HOST" \
+            'export NVM_DIR="$HOME/.nvm" && \
+             . "$NVM_DIR/nvm.sh" && \
+             cd /home/ubuntu/devConnect_BE_GithubActions && \
+             pm2 restart devConnect-BE && \
+             pm2 save && \
+             pm2 list'
