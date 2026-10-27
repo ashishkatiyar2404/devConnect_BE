@@ -52,6 +52,7 @@ app.use((err, req, res, next) => {
 const httpServer = createServer(app);
 initializeSocket(httpServer);
 
+const PORT = process.env.PORT || 8000;
 connectDB()
   .then(() => {
     console.log("Connected to Database");
