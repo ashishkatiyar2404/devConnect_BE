@@ -11,7 +11,10 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const chatRouter = require("./routes/chat");
 const initializeSocket = require("./services/socket");
-require("./jobs/cronjob");
+
+if (process.env.ENABLE_CRON !== "false") {
+  require("./jobs/cronjob");
+}
 
 const app = express();
 app.use(
@@ -51,11 +54,12 @@ initializeSocket(httpServer);
 
 connectDB()
   .then(() => {
-    console.log("Connected to DataBase");
-    httpServer.listen(process.env.PORT, () => {
-      console.log("Server started to listing on 8000");
+    console.log("Connected to Database");
+
+    httpServer.listen(PORT, () => {
+      console.log(`Server started listening on port ${PORT}`);
     });
   })
-  .catch(() => {
-    console.log("Something went Wrong");
+  .catch((error) => {
+    console.error("Database connection failed:", error);
   });
